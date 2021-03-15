@@ -81,13 +81,20 @@ In addition, we will show how we can easily create an AWS Glue Workflow 'as code
 Add any additional informations on usage, like using env file.
 If the project consists of a simple block, how to embed it on a CloudFormation stack, ...
 
-### Running the demo (optional)
+### 🏃 Running the demo (optional)
 
 Describe how to run the demo.
 
 Is there any sample data file to initiate a database?
 Do we need to run a command to start the demo?
 Should we see something running somewhere? (A working web UI with Uri as CloudFormation output, CloudWatch logs, ...)
+
+## ⚠️ Warnings (optional)
+
+List all security / infra warnings here (open security group, broad IAM permissions...)
+
+## ⚙️ Contributing / Next Steps  
+- [ ] create lambda custom resource to activate triggers on stack creation
 
 ## 👀 See also
 

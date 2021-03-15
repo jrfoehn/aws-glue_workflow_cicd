@@ -85,6 +85,9 @@ class DataPipelineStack(core.Stack):
             "csv_to_parquet",
             name="csv_to_parquet",
             command=csv_to_parquet_command,
+            default_arguments={
+                "--bucket": self.bucket.bucket_name,
+            },
             role=glue_role.role_name,
             glue_version="2.0",
             worker_type="Standard",

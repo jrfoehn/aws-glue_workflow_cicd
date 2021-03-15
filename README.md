@@ -61,10 +61,10 @@ cdk deploy --all
 
 The below metrics displays approximate values associated with deploying and using this block.
 
-Metric | Deployment | Workflow Run
------- | ------ | ------ |
- **Time** | 3 minutes | 10 minutes
- **Audience** | Developers, Solutions Architects 
+Metric | Deployment | Workflow Run | Original Dataset | Transformed Dataset
+------ | ------ | ------ | ------ | ------ |
+ **Time** | 3 minutes | 25 minutes
+ **Volume** | NA | NA | ~230GB | ~50 GB 
 
 ## 🎒 Pre-requisites
 
@@ -76,30 +76,32 @@ Metric | Deployment | Workflow Run
 The goal of this demo is to showcase customers how you can integrate a CICD chain with their AWS Glue ETL Scripts in order to automatically update their AWS Glue Workflows.  
 In addition, we will show how we can easily create an AWS Glue Workflow 'as code'.
 
-## 🛠 Usage (optional)
+![Solutions Architecture](./img/glue-workflow.png)
 
-Add any additional informations on usage, like using env file.
-If the project consists of a simple block, how to embed it on a CloudFormation stack, ...
+## 🛠 Usage 
 
-### 🏃 Running the demo (optional)
+CDK doesn't support Trigger Activation as of 2021-03-15. Make sure you activate the AWS Glue Triggers before launching the workdlow.
 
-Describe how to run the demo.
+### 🏃 Running the demo 
 
-Is there any sample data file to initiate a database?
-Do we need to run a command to start the demo?
-Should we see something running somewhere? (A working web UI with Uri as CloudFormation output, CloudWatch logs, ...)
+Follow the instructions above.
+Launch workflow from AWS Console or CLI: 
+
+```shell
+aws glue start-workflow-run --name nyc_workflow
+```
 
 ## ⚠️ Warnings (optional)
 
-List all security / infra warnings here (open security group, broad IAM permissions...)
+- AWS Glue service role has AmazonS3FullAccess Policy
 
 ## ⚙️ Contributing / Next Steps  
 - [ ] create lambda custom resource to activate triggers on stack creation
+- [ ] better parquet_processing.py script ? Add actual transforms insteand of prints
 
 ## 👀 See also
 
 List here any resources that helps the audience to understand how the demo works
 
- - [AWS xxx service](https://docs.aws.amazon.com/) official documentation.
- - [AWS Blog post](https://aws.amazon.com/blogs/) page.
- - Any external resource
+ - [AWS Glue](https://docs.aws.amazon.com/glue/) official documentation
+ - [NYC TLC Dataset](https://registry.opendata.aws/nyc-tlc-trip-records-pds/)

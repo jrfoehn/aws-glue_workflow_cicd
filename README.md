@@ -9,7 +9,9 @@ Lead Maintainer: [Jean-Robin Foehn](mailto:fjeanrob@amazon.com)
  - [Metrics](#-metrics)
  - [Pre-requisites](#-pre-requisites)
  - [Description](#-description)
- - [Usage](#-usage)
+ - [Usage](#-usage)  
+ - [Warnings](#-warnings) 
+ - [Contributing](#-contributing--next-steps)   
  - [See also](#-see-also)
 
 ## 🚀 Install
@@ -91,7 +93,7 @@ Launch workflow from AWS Console or CLI:
 aws glue start-workflow-run --name nyc_workflow
 ```
 
-## ⚠️ Warnings (optional)
+## ⚠️ Warnings
 
 - AWS Glue service role has AmazonS3FullAccess Policy
 

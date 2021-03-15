@@ -8,14 +8,14 @@ from aws_cdk import (
 data_pipeline = {
     "nodes": [
         {
-            "id": "nyc-csv-crawler",
+            "id": "nyc_csv_crawler",
             "type": "crawler"
         },
         {
             "id": "csv_to_parquet",
             "type": "job",
             "in": [{
-                "name": "nyc-csv-crawler",
+                "name": "nyc_csv_crawler",
                 "type": "crawler"
             }]
         },
@@ -30,20 +30,26 @@ data_pipeline = {
         {
             "id": "parquet_processing",
             'type': "job",
-            "in": [{
-                "name": "nyc_parquet_crawler",
-                "type": "crawler"
-            }]
+            "in": [
+                {
+                    "name": "nyc_parquet_crawler",
+                    "type": "crawler"
+                }
+            ]
         }
     ]
 }
 
-class GlueCrawlerStack(core.Stack):
+class DataPipelineStack(core.Stack):
 
     def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        bucket = s3.Bucket(self, 'nyc-bucket')
+        self.bucket = s3.Bucket(
+            self,
+            'nyc-bucket',
+            removal_policy=core.RemovalPolicy.DESTROY
+        )
 
         glue_role = iam.Role(
             self,
@@ -71,8 +77,9 @@ class GlueCrawlerStack(core.Stack):
 
         csv_to_parquet_command = glue.CfnJob.JobCommandProperty(
             name="glueetl",
-            script_location=f"s3://{bucket.bucket_name}/scripts/csv_to_parquet.py"
+            script_location=f"s3://{self.bucket.bucket_name}/cicd/src/csv_to_parquet.py"
         )
+
         csv_to_parquet_job = glue.CfnJob(
             self,
             "csv_to_parquet",
@@ -92,13 +99,13 @@ class GlueCrawlerStack(core.Stack):
             database_name="nyc_db",
             table_prefix="parquet_",
             targets={
-                's3Targets':[{"path": f"s3://{bucket.bucket_name}"}]
+                's3Targets':[{"path": f"s3://{self.bucket.bucket_name}"}]
             }
         )
 
         parquet_processing_command = glue.CfnJob.JobCommandProperty(
             name="glueetl",
-            script_location=f"s3://{bucket.bucket_name}/scripts/parquet_processing.py"
+            script_location=f"s3://{self.bucket.bucket_name}/cicd/src/parquet_processing.py"
         )
         parquet_processing_job = glue.CfnJob(
             self,
@@ -106,7 +113,7 @@ class GlueCrawlerStack(core.Stack):
             name="parquet_processing",
             command=parquet_processing_command,
             default_arguments={
-                "--bucket": bucket.bucket_name,
+                "--bucket": self.bucket.bucket_name,
                 "--prefix": "parquet",
                 "--additional-python-modules": "pyarrow,pandas==1.2.3,fsspec==0.7.4"
             },
@@ -150,25 +157,8 @@ class GlueCrawlerStack(core.Stack):
                         condition_list = condition_list + [glue.CfnTrigger.ConditionProperty(job_name=event['name'],
                                                                              state="SUCCEEDED",
                                                                              logical_operator="EQUALS")]
-                print(condition_list)
-                # job_triggers = node['in']
-                # # condition_list = []
-                # # for job_trigger in job_triggers:
-                # #     if "crawler" in job_trigger:
-                # #         condition_list.append(glue.CfnTrigger.ConditionProperty(crawler_name=job_trigger,
-                # #                                                                 state="SUCCEEDED",
-                # #                                                                 logical_operator="EQUALS"))
-                # #     else:
-                # #         condition_list.append(glue.CfnTrigger.ConditionProperty(job_name=job_trigger,
-                # #                                                                 state="SUCCEEDED",
-                # #                                                                 logical_operator="EQUALS"))
-                # condition_list = [glue.CfnTrigger.ConditionProperty(job_name=job_trigger['name'],
-                #                                                     state="SUCCEEDED",
-                #                                                     logical_operator="EQUALS")
-                #                   for job_trigger in job_triggers]
-                # print(condition_list)
+
                 predicate = glue.CfnTrigger.PredicateProperty(conditions=condition_list, logical="AND")
-                print(predicate)
 
                 trigger = glue.CfnTrigger(
                     self,
@@ -177,9 +167,9 @@ class GlueCrawlerStack(core.Stack):
                     workflow_name=glue_workflow.name,
                     actions=[action_property],
                     type="CONDITIONAL",
-                    predicate=predicate
+                    predicate=predicate,
+                    start_on_creation=True
                 )
-                print(trigger)
             if last_trigger:
                 last_trigger.add_depends_on(trigger)
             last_trigger=trigger

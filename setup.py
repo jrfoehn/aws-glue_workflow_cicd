@@ -6,7 +6,7 @@ with open("README.md") as fp:
 
 
 setuptools.setup(
-    name="labs_glue_worfklow_cicd",
+    name="infra",
     version="0.0.1",
 
     description="An empty CDK Python app",
@@ -15,8 +15,8 @@ setuptools.setup(
 
     author="author",
 
-    package_dir={"": "labs_glue_worfklow_cicd"},
-    packages=setuptools.find_packages(where="labs_glue_worfklow_cicd"),
+    package_dir={"": "infra"},
+    packages=setuptools.find_packages(where="infra"),
 
     install_requires=[
         "aws-cdk.core==1.91.0",
